@@ -58,12 +58,12 @@ public class BeatBox {
 		buttonBox.add(downTempo);
 		
 		JButton serializeIt = new JButton("Save");
-		serializeIt.addActionListener(new MySendListener());
+		serializeIt.addActionListener(new MySaveListener());
 		buttonBox.add(serializeIt);
 		
-		JButton restore = new JButton("Load");
-		restore.addActionListener(new MyReadInListener());
-		buttonBox.add(restore);
+		JButton load = new JButton("Load");
+		load.addActionListener(new MyLoadListener());
+		buttonBox.add(load);
 		
 		Box nameBox = new Box(BoxLayout.Y_AXIS);
 		for (int i = 0; i < 16; i++) {
@@ -238,6 +238,55 @@ public class BeatBox {
 			buildTrackAndStart();
 			
 			
+		}
+	}
+	
+	
+	public class MyLoadListener implements ActionListener {
+		public void actionPerformed(ActionEvent a) {
+			boolean[] checkboxState = null;
+			
+			try {
+				JFileChooser fileLoad = new JFileChooser();
+				fileLoad.showOpenDialog(theFrame);
+				ObjectInputStream is = new ObjectInputStream(new FileInputStream(fileLoad.getSelectedFile()));
+				checkboxState = (boolean[]) is.readObject();
+				is.close();
+			}catch (Exception ex) {ex.printStackTrace();}
+			
+			for (int i = 0; i < checkboxState.length; i++) {
+				JCheckBox check = (JCheckBox) checkboxList.get(i);
+				if (checkboxState[i]){
+					check.setSelected(true);
+				}else{
+					check.setSelected(false);
+				}
+			}
+			sequencer.stop();
+			buildTrackAndStart();
+			
+			
+		}
+	}
+	
+	
+	public class MySaveListener implements ActionListener {
+		public void actionPerformed(ActionEvent a) {
+			boolean[] checkboxState = new boolean[256];
+			
+			for (int i = 0; i < checkboxState.length; i++) {
+				JCheckBox check = (JCheckBox) checkboxList.get(i);
+				if (check.isSelected()){
+					checkboxState[i] = true;
+				}
+			}
+			try{
+				JFileChooser fileSave = new JFileChooser();
+				fileSave.showSaveDialog(theFrame);
+				ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(fileSave.getSelectedFile()));
+				os.writeObject(checkboxState);
+				os.close();
+			}catch (Exception ex) {ex.printStackTrace();}
 		}
 	}
 	
